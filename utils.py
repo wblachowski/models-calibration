@@ -1,9 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.base import ClassifierMixin
-from h2o.estimators import H2OEstimator
-import h2o
-import pandas as pd
 
 
 def plot_sample(X, title=None, size=6):
