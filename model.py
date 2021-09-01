@@ -32,6 +32,7 @@ class CalibratableModelFactory:
 class CalibratableModelMixin:
     def __init__(self, model):
         self.model = model
+        self.name = model.__class__.__name__
         self.platt_calibrator = None
         self.isotonic_calibrator = None
         self.calibrators = {
@@ -58,26 +59,26 @@ class CalibratableModelMixin:
 
 class H2OModel(CalibratableModelMixin):
     def train(self, X, y):
+        self.features = list(range(len(X[0])))
+        self.target = "target"
         train_frame = self._to_h2o_frame(X, y)
-        self.model.train(
-            x=[str(x) for x in range(len(X[0]))], y="target", training_frame=train_frame
-        )
+        self.model.train(x=self.features, y=self.target, training_frame=train_frame)
 
     def score(self, X, y):
         test_frame = self._to_h2o_frame(X, y)
         return self.model.model_performance(test_frame).accuracy()[0][1]
 
     def predict(self, X):
-        df = pd.DataFrame(data=X, columns=[*list(range(len(X[0])))])
-        return self.model.predict(h2o.H2OFrame(df)).as_data_frame()["p1"].tolist()
+        predict_frame = self._to_h2o_frame(X)
+        return self.model.predict(predict_frame).as_data_frame()["p1"].tolist()
 
-    def _to_h2o_frame(self, X, y):
-        df = pd.DataFrame(
-            data=[[*data, target] for data, target in zip(X, y)],
-            columns=[*list(range(len(X[0]))), "target"],
-        )
+    def _to_h2o_frame(self, X, y=None):
+        df = pd.DataFrame(data=X, columns=self.features)
+        if y is not None:
+            df[self.target] = y
         h2o_frame = h2o.H2OFrame(df)
-        h2o_frame["target"] = h2o_frame["target"].asfactor()
+        if y is not None:
+            h2o_frame[self.target] = h2o_frame[self.target].asfactor()
         return h2o_frame
 
 
