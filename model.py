@@ -1,9 +1,10 @@
-import pandas as pd
 import h2o
-from sklearn.base import ClassifierMixin
+import pandas as pd
 from h2o.estimators import H2OEstimator
-from calibration import IsotonicCalibrator, PlattCalibrator
+from sklearn.base import ClassifierMixin
 from sklearn.calibration import calibration_curve
+
+from calibration import IsotonicCalibrator, PlattCalibrator
 
 
 class CalibratableModelFactory:
