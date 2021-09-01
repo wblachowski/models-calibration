@@ -1,7 +1,7 @@
 import h2o
 import pandas as pd
-from h2o.estimators import H2OEstimator
-from sklearn.base import ClassifierMixin
+from h2o.estimators import H2OEstimator as H2OClassifier
+from sklearn.base import ClassifierMixin as ScikitClassifier
 from sklearn.calibration import calibration_curve
 
 from calibration import IsotonicCalibrator, PlattCalibrator
@@ -17,15 +17,15 @@ class CalibratableModelFactory:
             return ScikitDistanceModel(base_model)
 
     def _is_h2o(self, base_model):
-        return isinstance(base_model, H2OEstimator)
+        return isinstance(base_model, H2OClassifier)
 
     def _is_scikit_probability(self, base_model):
-        return isinstance(base_model, ClassifierMixin) and hasattr(
+        return isinstance(base_model, ScikitClassifier) and hasattr(
             base_model, "predict_proba"
         )
 
     def _is_scikit_distance(self, base_model):
-        return isinstance(base_model, ClassifierMixin) and hasattr(
+        return isinstance(base_model, ScikitClassifier) and hasattr(
             base_model, "decision_function"
         )
 
