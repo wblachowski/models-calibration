@@ -46,15 +46,15 @@ class CalibratableModelMixin:
         self.calibrators["platt"] = PlattCalibrator(prob_pred, prob_true)
         self.calibrators["isotonic"] = IsotonicCalibrator(prob_pred, prob_true)
 
-    def predict_calibrated(self, X, method="isotonic"):
-        return self.calibrate_probabilities(self.predict(X), method)
-
     def calibrate_probabilities(self, probabilities, method="isotonic"):
         if method not in self.calibrators:
             raise ValueError("Method has to be either 'platt' or 'isotonic'")
         if self.calibrators[method] is None:
             raise ValueError("Fit the calibrators first")
         return self.calibrators[method].calibrate(probabilities)
+
+    def predict_calibrated(self, X, method="isotonic"):
+        return self.calibrate_probabilities(self.predict(X), method)
 
 
 class H2OModel(CalibratableModelMixin):
