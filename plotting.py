@@ -50,7 +50,7 @@ def plot_calibration_info_for_models(models, X, y):
         fraction_of_positives, mean_predicted_value = calibration_curve(
             y, prob_pos, n_bins=10
         )
-        brier_score = brier_score_loss(fraction_of_positives, mean_predicted_value)
+        brier_score = brier_score_loss(y, prob_pos)
 
         ax1.plot(
             mean_predicted_value,
