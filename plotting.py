@@ -26,7 +26,9 @@ def plot_calibration_curve(y, probs, title):
         marker=".",
         color="orange",
     )
-    plt.title(f"{title}\nBrier score: {round(brier_score, 4)}")
+    plt.title(f"{title}\nBrier score: {round(brier_score, 3)}")
+    plt.set_ylabel("Fraction of positives")
+    plt.set_xlabel("Mean predicted value")
     plt.show()
     return prob_true, prob_pred
 
@@ -36,6 +38,8 @@ def plot_fitted_calibrator(prob_true, prob_pred, prob_calibrated, title=None):
     plt.plot(prob_pred, prob_true, marker=".", color="orange")
     plt.plot(prob_pred, prob_calibrated, color="red")
     plt.title(title)
+    plt.set_ylabel("Fraction of positives")
+    plt.set_xlabel("Mean predicted value")
     plt.show()
 
 
@@ -56,7 +60,7 @@ def plot_calibration_info_for_models(models, X, y):
             mean_predicted_value,
             fraction_of_positives,
             marker=".",
-            label=f"{name} (BS={round(brier_score, 2)})",
+            label=f"{name} (BS={round(brier_score, 3)})",
         )
 
         ax2.hist(prob_pos, range=(0, 1), bins=10, label=name, histtype="step", lw=2)
