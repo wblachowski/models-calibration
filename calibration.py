@@ -3,7 +3,7 @@ from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LinearRegression
 
 
-class PlattCalibrator:
+class SigmoidCalibrator:
     def __init__(self, prob_pred, prob_true):
         prob_pred, prob_true = self._filter_out_of_domain(prob_pred, prob_true)
         prob_true = np.log((1 / np.array(prob_true)) - 1).reshape(-1, 1)

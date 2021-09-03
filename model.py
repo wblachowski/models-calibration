@@ -4,7 +4,7 @@ from h2o.estimators import H2OEstimator as H2OClassifier
 from sklearn.base import ClassifierMixin as ScikitClassifier
 from sklearn.calibration import calibration_curve
 
-from calibration import IsotonicCalibrator, PlattCalibrator
+from calibration import IsotonicCalibrator, SigmoidCalibrator
 
 
 class CalibratableModelFactory:
@@ -34,22 +34,22 @@ class CalibratableModelMixin:
     def __init__(self, model):
         self.model = model
         self.name = model.__class__.__name__
-        self.platt_calibrator = None
+        self.sigmoid_calibrator = None
         self.isotonic_calibrator = None
         self.calibrators = {
-            "platt": None,
+            "sigmoid": None,
             "isotonic": None,
         }
 
     def calibrate(self, X, y):
         predictions = self.predict(X)
         prob_true, prob_pred = calibration_curve(y, predictions, n_bins=10)
-        self.calibrators["sigmoid"] = PlattCalibrator(prob_pred, prob_true)
+        self.calibrators["sigmoid"] = SigmoidCalibrator(prob_pred, prob_true)
         self.calibrators["isotonic"] = IsotonicCalibrator(prob_pred, prob_true)
 
     def calibrate_probabilities(self, probabilities, method="isotonic"):
         if method not in self.calibrators:
-            raise ValueError("Method has to be either 'platt' or 'isotonic'")
+            raise ValueError("Method has to be either 'sigmoid' or 'isotonic'")
         if self.calibrators[method] is None:
             raise ValueError("Fit the calibrators first")
         return self.calibrators[method].calibrate(probabilities)
