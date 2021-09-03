@@ -26,8 +26,8 @@ def plot_calibration_curve(y, probs, title):
         color="orange",
     )
     plt.title(f"{title}\nBrier score: {round(brier_score, 3)}")
-    plt.set_ylabel("Fraction of positives")
-    plt.set_xlabel("Mean predicted value")
+    plt.ylabel("Fraction of positives")
+    plt.xlabel("Mean predicted value")
     return prob_true, prob_pred
 
 
@@ -36,11 +36,11 @@ def plot_fitted_calibrator(prob_true, prob_pred, prob_calibrated, title=None):
     plt.plot(prob_pred, prob_true, marker=".", color="orange")
     plt.plot(prob_pred, prob_calibrated, color="red")
     plt.title(title)
-    plt.set_ylabel("Fraction of positives")
-    plt.set_xlabel("Mean predicted value")
+    plt.ylabel("Fraction of positives")
+    plt.xlabel("Mean predicted value")
 
 
-def plot_calibration_info_for_models(models, X, y):
+def plot_calibration_details_for_models(models, X, y):
     plt.figure(figsize=(10, 10))
     ax1 = plt.subplot2grid((3, 1), (0, 0), rowspan=2)
     ax2 = plt.subplot2grid((3, 1), (2, 0))
@@ -65,7 +65,7 @@ def plot_calibration_info_for_models(models, X, y):
     ax1.set_ylabel("Fraction of positives")
     ax1.set_ylim([-0.05, 1.05])
     ax1.legend(loc="upper left")
-    ax1.set_title("Calibration plots  (reliability curve)")
+    ax1.set_title("Calibration plots")
 
     ax2.set_xlabel("Mean predicted value")
     ax2.set_ylabel("Count")
