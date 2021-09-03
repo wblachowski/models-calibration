@@ -44,7 +44,7 @@ class CalibratableModelMixin:
     def calibrate(self, X, y):
         predictions = self.predict(X)
         prob_true, prob_pred = calibration_curve(y, predictions, n_bins=10)
-        self.calibrators["platt"] = PlattCalibrator(prob_pred, prob_true)
+        self.calibrators["sigmoid"] = PlattCalibrator(prob_pred, prob_true)
         self.calibrators["isotonic"] = IsotonicCalibrator(prob_pred, prob_true)
 
     def calibrate_probabilities(self, probabilities, method="isotonic"):
