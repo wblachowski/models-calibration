@@ -47,20 +47,20 @@ def plot_calibration_details_for_models(models, X, y):
     ax1.plot([0, 1], [0, 1], "k:", label="Perfectly calibrated")
     for model in models:
         name = model.name
-        prob_pos = model.predict(X)
-        fraction_of_positives, mean_predicted_value = calibration_curve(
-            y, prob_pos, n_bins=10
-        )
-        brier_score = brier_score_loss(y, prob_pos)
+        probabilities = model.predict(X)
+        prob_true, prob_pred = calibration_curve(y, probabilities, n_bins=10)
+        brier_score = brier_score_loss(y, probabilities)
 
         ax1.plot(
-            mean_predicted_value,
-            fraction_of_positives,
+            prob_pred,
+            prob_true,
             marker=".",
             label=f"{name} (BS={round(brier_score, 3)})",
         )
 
-        ax2.hist(prob_pos, range=(0, 1), bins=10, label=name, histtype="step", lw=2)
+        ax2.hist(
+            probabilities, range=(0, 1), bins=10, label=name, histtype="step", lw=2
+        )
 
     ax1.set_ylabel("Fraction of positives")
     ax1.set_ylim([-0.05, 1.05])
