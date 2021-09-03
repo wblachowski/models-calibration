@@ -13,7 +13,6 @@ def plot_sample(X, title=None, size=6):
     fig.tight_layout()
     st.set_y(0.6)
     fig.subplots_adjust(top=0.85)
-    plt.show()
 
 
 def plot_calibration_curve(y, probs, title):
@@ -29,7 +28,6 @@ def plot_calibration_curve(y, probs, title):
     plt.title(f"{title}\nBrier score: {round(brier_score, 3)}")
     plt.set_ylabel("Fraction of positives")
     plt.set_xlabel("Mean predicted value")
-    plt.show()
     return prob_true, prob_pred
 
 
@@ -40,7 +38,6 @@ def plot_fitted_calibrator(prob_true, prob_pred, prob_calibrated, title=None):
     plt.title(title)
     plt.set_ylabel("Fraction of positives")
     plt.set_xlabel("Mean predicted value")
-    plt.show()
 
 
 def plot_calibration_info_for_models(models, X, y):
@@ -73,4 +70,3 @@ def plot_calibration_info_for_models(models, X, y):
     ax2.set_xlabel("Mean predicted value")
     ax2.set_ylabel("Count")
     ax2.legend(loc="upper center", ncol=2)
-    plt.show()
