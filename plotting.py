@@ -4,15 +4,15 @@ from sklearn.calibration import calibration_curve
 from sklearn.metrics import brier_score_loss
 
 
-def plot_sample(X, title=None, size=6):
+def plot_sample(X, title=None, size=8):
     fig = plt.figure()
     st = fig.suptitle(title)
     for i, im in enumerate(np.random.permutation(X)[:size]):
         fig.add_subplot(1, size, i + 1)
+        plt.axis("off")
         plt.imshow(im.reshape(28, 28), cmap="gray")
     fig.tight_layout()
-    st.set_y(0.6)
-    fig.subplots_adjust(top=0.85)
+    st.set_y(0.59)
 
 
 def plot_calibration_curve(y, probs, title):
