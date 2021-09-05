@@ -1,4 +1,5 @@
 import h2o
+import numpy as np
 import pandas as pd
 from h2o.estimators import H2OEstimator as H2OClassifier
 from sklearn.base import ClassifierMixin as ScikitClassifier
@@ -57,6 +58,15 @@ class CalibratableModelMixin:
     def predict_calibrated(self, X, method="isotonic"):
         return self.calibrate_probabilities(self.predict(X), method)
 
+    def score(self, X, y):
+        return self._get_accuracy(y, self.predict(X))
+
+    def score_calibrated(self, X, y, method="isotonic"):
+        return self._get_accuracy(y, self.predict_calibrated(X, method))
+
+    def _get_accuracy(self, y, preds):
+        return np.mean(np.equal(y.astype(np.bool), preds >= 0.5))
+
 
 class H2OModel(CalibratableModelMixin):
     def train(self, X, y):
@@ -65,13 +75,9 @@ class H2OModel(CalibratableModelMixin):
         train_frame = self._to_h2o_frame(X, y)
         self.model.train(x=self.features, y=self.target, training_frame=train_frame)
 
-    def score(self, X, y):
-        test_frame = self._to_h2o_frame(X, y)
-        return self.model.model_performance(test_frame).accuracy()[0][1]
-
     def predict(self, X):
         predict_frame = self._to_h2o_frame(X)
-        return self.model.predict(predict_frame).as_data_frame()["p1"].tolist()
+        return self.model.predict(predict_frame).as_data_frame()["p1"].to_numpy()
 
     def _to_h2o_frame(self, X, y=None):
         df = pd.DataFrame(data=X, columns=self.features)
@@ -83,20 +89,20 @@ class H2OModel(CalibratableModelMixin):
         return h2o_frame
 
 
-class ScikitModelMixin:
+class ScikitProbabilityModel(CalibratableModelMixin):
     def train(self, X, y):
         self.model.fit(X, y)
 
-    def score(self, X, y):
-        return self.model.score(X, y)
-
-
-class ScikitProbabilityModel(ScikitModelMixin, CalibratableModelMixin):
     def predict(self, X):
         return self.model.predict_proba(X)[:, 1]
 
 
-class ScikitDistanceModel(ScikitModelMixin, CalibratableModelMixin):
+class ScikitDistanceModel(CalibratableModelMixin):
+    def train(self, X, y):
+        self.model.fit(X, y)
+        preds = self.model.decision_function(X)
+        self.max_pred = np.abs(preds).max()
+
     def predict(self, X):
         probs = self.model.decision_function(X)
-        return (probs - probs.min()) / (probs.max() - probs.min())
+        return np.clip((probs + self.max_pred) / (2 * self.max_pred), 0, 1)
