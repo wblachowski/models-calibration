@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from h2o.estimators import H2OEstimator as H2OClassifier
 from sklearn.base import ClassifierMixin as ScikitClassifier
+from tensorflow.keras import Model as KerasBaseModel
 from sklearn.calibration import calibration_curve
 
 from calibration import IsotonicCalibrator, SigmoidCalibrator
@@ -10,25 +11,13 @@ from calibration import IsotonicCalibrator, SigmoidCalibrator
 
 class CalibratableModelFactory:
     def get_model(self, base_model):
-        if self._is_h2o(base_model):
+        if isinstance(base_model, H2OClassifier):
             return H2OModel(base_model)
-        elif self._is_scikit_probability(base_model):
-            return ScikitProbabilityModel(base_model)
-        elif self._is_scikit_distance(base_model):
-            return ScikitDistanceModel(base_model)
-
-    def _is_h2o(self, base_model):
-        return isinstance(base_model, H2OClassifier)
-
-    def _is_scikit_probability(self, base_model):
-        return isinstance(base_model, ScikitClassifier) and hasattr(
-            base_model, "predict_proba"
-        )
-
-    def _is_scikit_distance(self, base_model):
-        return isinstance(base_model, ScikitClassifier) and hasattr(
-            base_model, "decision_function"
-        )
+        elif isinstance(base_model, ScikitClassifier):
+            return ScikitModel(base_model)
+        elif isinstance(base_model, KerasBaseModel):
+            return KerasModel(base_model)
+        raise ValueError("Unsupported model passed as an argument")
 
 
 class CalibratableModelMixin:
@@ -89,7 +78,7 @@ class H2OModel(CalibratableModelMixin):
         return h2o_frame
 
 
-class ScikitProbabilityModel(CalibratableModelMixin):
+class ScikitModel(CalibratableModelMixin):
     def train(self, X, y):
         self.model.fit(X, y)
 
@@ -97,12 +86,9 @@ class ScikitProbabilityModel(CalibratableModelMixin):
         return self.model.predict_proba(X)[:, 1]
 
 
-class ScikitDistanceModel(CalibratableModelMixin):
+class KerasModel(CalibratableModelMixin):
     def train(self, X, y):
-        self.model.fit(X, y)
-        preds = self.model.decision_function(X)
-        self.max_pred = np.abs(preds).max()
+        self.model.fit(X, y, batch_size=128, epochs=10, verbose=0)
 
     def predict(self, X):
-        probs = self.model.decision_function(X)
-        return np.clip((probs + self.max_pred) / (2 * self.max_pred), 0, 1)
+        return self.model.predict(X).flatten()
