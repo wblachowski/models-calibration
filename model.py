@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from h2o.estimators import H2OEstimator as H2OClassifier
 from sklearn.base import ClassifierMixin as ScikitClassifier
-from tensorflow.keras import Model as KerasBaseModel
 from sklearn.calibration import calibration_curve
+from tensorflow.keras import Model as KerasBaseModel
 
 from calibration import IsotonicCalibrator, SigmoidCalibrator
 
