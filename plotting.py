@@ -15,6 +15,21 @@ def plot_sample(X, title=None, size=8):
     st.set_y(0.59)
 
 
+def plot_sample_predictions(models, X, X_unscaled, size=8):
+    indexes = np.random.permutation(len(X))[:size]
+    fig = plt.figure(figsize=(6, len(models) * 1.6), constrained_layout=True)
+    subfigs = fig.subfigures(len(models))
+    for j, model in enumerate(models):
+        subfig = subfigs.flat[j]
+        st = subfig.suptitle(model.name)
+        for i, idx in enumerate(indexes):
+            prediction = model.predict(np.array([X[idx]]))[0]
+            subfig.add_subplot(1, size, i + 1)
+            plt.axis("off")
+            plt.title(f"{round(100*prediction,2)}%", fontsize=10)
+            plt.imshow(X_unscaled[idx].reshape(28, 28), cmap="gray")
+
+
 def plot_calibration_curve(y, probs, title):
     brier_score = brier_score_loss(y, probs)
     prob_true, prob_pred = calibration_curve(y, probs, n_bins=10)
