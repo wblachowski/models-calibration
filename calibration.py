@@ -12,7 +12,7 @@ class SigmoidCalibrator:
         )
 
     def calibrate(self, probabilities):
-        return 1 / (1 + np.exp(-self.regressor.predict(probabilities.reshape(-1, 1))))
+        return 1 / (1 + np.exp(-self.regressor.predict(probabilities.reshape(-1, 1)).flatten()))
 
     def _filter_out_of_domain(self, prob_pred, prob_true):
         filtered = list(zip(*[p for p in zip(prob_pred, prob_true) if 0 < p[1] < 1]))
