@@ -21,7 +21,7 @@ def plot_sample_predictions(models, X, X_unscaled, size=8):
     subfigs = fig.subfigures(len(models))
     for j, model in enumerate(models):
         subfig = subfigs.flat[j]
-        st = subfig.suptitle(model.name)
+        subfig.suptitle(model.name)
         for i, idx in enumerate(indexes):
             prediction = model.predict(np.array([X[idx]]))[0]
             subfig.add_subplot(1, size, i + 1)
@@ -55,14 +55,20 @@ def plot_fitted_calibrator(prob_true, prob_pred, prob_calibrated, title=None):
     plt.xlabel("Mean predicted value")
 
 
-def plot_calibration_details_for_models(models, X, y):
+def plot_calibration_details_for_models(
+    models, X, y, calibrated=False, method="isotonic"
+):
     plt.figure(figsize=(10, 10))
     ax1 = plt.subplot2grid((3, 1), (0, 0), rowspan=2)
     ax2 = plt.subplot2grid((3, 1), (2, 0))
     ax1.plot([0, 1], [0, 1], "k:", label="Perfectly calibrated")
     for model in models:
         name = model.name
-        probabilities = model.predict(X)
+        probabilities = (
+            model.predict(X)
+            if not calibrated
+            else model.predict_calibrated(X, method=method)
+        )
         prob_true, prob_pred = calibration_curve(y, probabilities, n_bins=10)
         brier_score = brier_score_loss(y, probabilities)
 
